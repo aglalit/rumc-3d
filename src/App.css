@@ -72,6 +72,23 @@
 
 .prism-legend {
   flex: 0 0 260px;
+}
+.prism-label {
+  position: absolute;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+}
+
+.label-wrapper {
+  position: absolute;
+  right: 20vw;
+  top: 15vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
