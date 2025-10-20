@@ -47,53 +47,6 @@ const generateButtonContent = (prismName, faceKey, rowIndex, colIndex) => {
     };
 };
 
-const GRID_SIZE = 3;
-const FACE_KEYS = ['front', 'right', 'back', 'left'];
-const FACE_TITLES = {
-    front: 'Фронтальная грань',
-    back: 'Тыловая грань',
-    left: 'Левая грань',
-    right: 'Правая грань'
-};
-
-const createTextSprite = (text, { color = '#ffffff', fontSize = 38, padding = 8 } = {}) => {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const font = `${fontSize}px "Arial"`;
-    context.font = font;
-    const metrics = context.measureText(text);
-    const textWidth = metrics.width;
-    const textHeight = fontSize;
-
-    canvas.width = textWidth + padding * 2;
-    canvas.height = textHeight + padding * 2;
-
-    context.font = font;
-    context.fillStyle = 'rgba(0, 0, 0, 0.65)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = color;
-    context.textBaseline = 'top';
-    context.fillText(text, padding, padding);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-
-    const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
-    const sprite = new THREE.Sprite(material);
-    const scaleFactor = 0.015;
-    sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
-    return sprite;
-};
-
-const generateButtonContent = (prismName, faceKey, rowIndex, colIndex) => {
-    const rowLabels = ['A', 'B', 'C'];
-    const columnLabels = ['1', '2', '3'];
-    return {
-        title: `${prismName} — ${FACE_TITLES[faceKey]} (${rowLabels[rowIndex]}${columnLabels[colIndex]})`,
-        description: `Описание для сектора ${rowLabels[rowIndex]}${columnLabels[colIndex]} на грани "${FACE_TITLES[faceKey]}" блока "${prismName}". Здесь можно разместить детализированную информацию о соответствующем направлении развития.`
-    };
-};
-
 const ThreeScene = () => {
     const mountRef = useRef(null);
     const [selectedSector, setSelectedSector] = useState(null);
