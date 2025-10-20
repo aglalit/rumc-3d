@@ -2,6 +2,50 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import './App.css';
+import {
+    GRID_SIZE,
+    FACE_KEYS,
+    FACE_TITLES,
+    ROW_LABELS,
+    COLUMN_LABELS,
+    PRISM_NAMES
+} from './prismConfig';
+
+const createTextSprite = (text, { color = '#f8f9fa', fontSize = 26, padding = 6 } = {}) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const font = `${fontSize}px "Arial"`;
+    context.font = font;
+    const metrics = context.measureText(text);
+    const textWidth = metrics.width;
+    const textHeight = fontSize;
+
+    canvas.width = textWidth + padding * 2;
+    canvas.height = textHeight + padding * 2;
+
+    context.font = font;
+    context.fillStyle = 'rgba(20, 20, 20, 0.75)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = color;
+    context.textBaseline = 'top';
+    context.fillText(text, padding, padding);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+    const sprite = new THREE.Sprite(material);
+    const scaleFactor = 0.012;
+    sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
+    return sprite;
+};
+
+const generateButtonContent = (prismName, faceKey, rowIndex, colIndex) => {
+    return {
+        title: `${prismName} — ${FACE_TITLES[faceKey]} (${ROW_LABELS[rowIndex]}${COLUMN_LABELS[colIndex]})`,
+        description: `Описание для сектора ${ROW_LABELS[rowIndex]}${COLUMN_LABELS[colIndex]} на грани "${FACE_TITLES[faceKey]}" блока "${prismName}". Здесь можно разместить детализированную информацию о соответствующем направлении развития.`
+    };
+};
 
 const GRID_SIZE = 3;
 const FACE_KEYS = ['front', 'right', 'back', 'left'];
@@ -458,8 +502,9 @@ const ThreeScene = () => {
 
                 clickableObjects.current = [];
 
-                // Освобождаем ресурсы
-                renderer.current.dispose();
+            if (controls.current) {
+                controls.current.dispose();
+            }
 
             if (renderer.current) {
                 renderer.current.dispose();

@@ -70,6 +70,8 @@
   position: relative;
 }
 
+.prism-legend {
+  flex: 0 0 260px;
 .prism-label {
   position: absolute;
   color: white;
