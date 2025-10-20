@@ -3,12 +3,7 @@ import { render, screen } from '@testing-library/react';
 jest.mock('three', () => {
   const createCanvas = () => {
     if (global.document && typeof global.document.createElement === 'function') {
-      const canvas = global.document.createElement('canvas');
-      canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 600 });
-      canvas.addEventListener = () => {};
-      canvas.removeEventListener = () => {};
-      canvas.style = {};
-      return canvas;
+      return global.document.createElement('canvas');
     }
     return {
       getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
@@ -17,108 +12,6 @@ jest.mock('three', () => {
       style: {}
     };
   };
-
-  class Vector3 {
-    constructor(x = 0, y = 0, z = 0) {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-    }
-    set(x = 0, y = 0, z = 0) {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-      return this;
-    }
-    copy(vector) {
-      this.x = vector.x;
-      this.y = vector.y;
-      this.z = vector.z;
-      return this;
-    }
-    clone() {
-      return new Vector3(this.x, this.y, this.z);
-    }
-    add(vector) {
-      this.x += vector.x;
-      this.y += vector.y;
-      this.z += vector.z;
-      return this;
-    }
-    sub(vector) {
-      this.x -= vector.x;
-      this.y -= vector.y;
-      this.z -= vector.z;
-      return this;
-    }
-    multiplyScalar(scalar) {
-      this.x *= scalar;
-      this.y *= scalar;
-      this.z *= scalar;
-      return this;
-    }
-    divideScalar(scalar) {
-      if (scalar !== 0) {
-        this.x /= scalar;
-        this.y /= scalar;
-        this.z /= scalar;
-      }
-      return this;
-    }
-    length() {
-      return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2) || 1;
-    }
-    normalize() {
-      return this.divideScalar(this.length());
-    }
-    crossVectors(a, b) {
-      const ax = a.x, ay = a.y, az = a.z;
-      const bx = b.x, by = b.y, bz = b.z;
-      this.x = ay * bz - az * by;
-      this.y = az * bx - ax * bz;
-      this.z = ax * by - ay * bx;
-      return this;
-    }
-    dot(vector) {
-      return this.x * vector.x + this.y * vector.y + this.z * vector.z;
-    }
-    addVectors(a, b) {
-      this.x = a.x + b.x;
-      this.y = a.y + b.y;
-      this.z = a.z + b.z;
-      return this;
-    }
-    project() {
-      return { x: 0, y: 0 };
-    }
-  }
-
-  class Vector2 {
-    constructor() {
-      this.x = 0;
-      this.y = 0;
-    }
-  }
-
-  class Matrix4 {
-    makeBasis() {
-      return this;
-    }
-  }
-
-  class Quaternion {
-    constructor() {
-      this.value = null;
-    }
-    setFromRotationMatrix(matrix) {
-      this.value = matrix;
-      return this;
-    }
-    copy(quaternion) {
-      this.value = quaternion.value;
-      return this;
-    }
-  }
 
   class Scene {
     constructor() {
@@ -145,6 +38,10 @@ jest.mock('three', () => {
   class WebGLRenderer {
     constructor() {
       this.domElement = createCanvas();
+      this.domElement.getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 600 });
+      this.domElement.addEventListener = () => {};
+      this.domElement.removeEventListener = () => {};
+      this.domElement.style = {};
     }
     setSize() {}
     setPixelRatio() {}
@@ -165,9 +62,7 @@ jest.mock('three', () => {
   class Group {
     constructor() {
       this.children = [];
-      this.position = new Vector3();
-      this.quaternion = new Quaternion();
-      this.userData = {};
+      this.rotation = { y: 0 };
     }
     add(child) {
       this.children.push(child);
@@ -180,9 +75,8 @@ jest.mock('three', () => {
   class Mesh {
     constructor() {
       this.children = [];
-      this.position = new Vector3();
+      this.position = { set: () => {} };
       this.rotation = {};
-      this.quaternion = new Quaternion();
       this.userData = {};
       this.castShadow = false;
       this.receiveShadow = false;
@@ -204,10 +98,6 @@ jest.mock('three', () => {
     constructor() {}
   }
 
-  class PlaneGeometry {
-    constructor() {}
-  }
-
   class BoxGeometry {
     constructor() {}
   }
@@ -226,6 +116,7 @@ jest.mock('three', () => {
     constructor() {
       this.map = null;
       this.depthTest = false;
+      this.rotation = 0;
       this.dispose = () => {};
     }
   }
@@ -233,8 +124,8 @@ jest.mock('three', () => {
   class Sprite {
     constructor() {
       this.scale = { set: () => {} };
-      this.position = new Vector3();
-      this.material = { map: { dispose: () => {} }, dispose: () => {} };
+      this.position = { set: () => {} };
+      this.material = { rotation: 0 };
       this.userData = {};
     }
   }
@@ -244,6 +135,25 @@ jest.mock('three', () => {
       this.setFromCamera = () => {};
       this.intersectObjects = () => [];
     }
+  }
+
+  class Vector2 {
+    constructor() {
+      this.x = 0;
+      this.y = 0;
+    }
+  }
+
+  class Vector3 {
+    constructor() {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+    }
+    project() {
+      return { x: 0, y: 0 };
+    }
+    set() {}
   }
 
   class Color {
@@ -259,7 +169,6 @@ jest.mock('three', () => {
     Group,
     Mesh,
     MeshStandardMaterial,
-    PlaneGeometry,
     BoxGeometry,
     CylinderGeometry,
     CanvasTexture,
@@ -268,10 +177,7 @@ jest.mock('three', () => {
     Raycaster,
     Vector2,
     Vector3,
-    Matrix4,
-    Quaternion,
-    Color,
-    DoubleSide: 'DoubleSide'
+    Color
   };
 });
 
@@ -284,10 +190,6 @@ jest.mock('three/examples/jsm/controls/OrbitControls', () => ({
       this.maxPolarAngle = Math.PI;
       this.enableRotate = true;
       this.enablePan = false;
-      this.enableZoom = true;
-      this.minDistance = 0;
-      this.maxDistance = 0;
-      this.target = { set: () => {} };
     }
     update() {}
     dispose() {}
