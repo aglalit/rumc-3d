@@ -11,6 +11,27 @@ import {
     PRISM_NAMES
 } from './prismConfig';
 
+<<<<<<< ours
+=======
+const createRoundedSquareShape = (size, radius) => {
+    const shape = new THREE.Shape();
+    const cornerRadius = Math.min(radius, size / 2);
+    const half = size / 2;
+
+    shape.moveTo(-half + cornerRadius, -half);
+    shape.lineTo(half - cornerRadius, -half);
+    shape.quadraticCurveTo(half, -half, half, -half + cornerRadius);
+    shape.lineTo(half, half - cornerRadius);
+    shape.quadraticCurveTo(half, half, half - cornerRadius, half);
+    shape.lineTo(-half + cornerRadius, half);
+    shape.quadraticCurveTo(-half, half, -half, half - cornerRadius);
+    shape.lineTo(-half, -half + cornerRadius);
+    shape.quadraticCurveTo(-half, -half, -half + cornerRadius, -half);
+
+    return shape;
+};
+
+>>>>>>> theirs
 const createTextSprite = (text, { color = '#f8f9fa', fontSize = 26, padding = 6 } = {}) => {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -58,10 +79,15 @@ const ThreeScene = () => {
     const prismGroup = useRef(null);
     const raycaster = useRef(null);
     const animationId = useRef(null);
+<<<<<<< ours
     const labelsRef = useRef([]);
     const gridLabelsRef = useRef([]);
     const clickableObjects = useRef([]);
     const prismNames = ['Самопроектирование', 'Индивидуализация', 'Интеграция', 'Адаптация'];
+=======
+    const gridLabelsRef = useRef([]);
+    const clickableObjects = useRef([]);
+>>>>>>> theirs
 
     useEffect(() => {
         if (!mountRef.current) {
@@ -77,7 +103,11 @@ const ThreeScene = () => {
             0.1,
             1000
         );
+<<<<<<< ours
         camera.current.position.set(10, 6, 12);
+=======
+        camera.current.position.set(10, 5, 10);
+>>>>>>> theirs
 
         renderer.current = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.current.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
@@ -108,6 +138,7 @@ const ThreeScene = () => {
         directionalLight.position.set(6, 10, 8);
         scene.current.add(directionalLight);
 
+<<<<<<< ours
         const createPrismLabel = (index, text) => {
             const label = document.createElement('div');
             label.className = 'prism-label';
@@ -203,6 +234,97 @@ const ThreeScene = () => {
 
             button.castShadow = true;
             button.receiveShadow = true;
+=======
+        prismGroup.current = new THREE.Group();
+        scene.current.add(prismGroup.current);
+
+        const baseLength = 3.6;
+        const prismHeight = 2.6;
+        const prismSpacing = 0.8;
+        const buttonGap = 0.14;
+        const margin = 0.2;
+        const buttonDepth = 0.22;
+        const triangleHeight = Math.sqrt(3) / 2 * baseLength;
+
+        const triangleVertices = [
+            new THREE.Vector3(-baseLength / 2, 0, -triangleHeight / 3),
+            new THREE.Vector3(baseLength / 2, 0, -triangleHeight / 3),
+            new THREE.Vector3(0, 0, (2 * triangleHeight) / 3)
+        ];
+        const centroid = triangleVertices[0].clone().add(triangleVertices[1]).add(triangleVertices[2]).divideScalar(3);
+        triangleVertices.forEach(vertex => vertex.sub(centroid));
+
+        const faceDefinitions = [
+            { key: 'base', startIndex: 0, endIndex: 1 },
+            { key: 'right', startIndex: 1, endIndex: 2 },
+            { key: 'left', startIndex: 2, endIndex: 0 }
+        ];
+
+        const faceColors = {
+            base: 0xff6b6b,
+            right: 0x4ecdc4,
+            left: 0x5c7cfa
+        };
+
+        const heightAxis = new THREE.Vector3(0, 1, 0);
+
+        const faceData = faceDefinitions.map(def => {
+            const start = triangleVertices[def.startIndex];
+            const end = triangleVertices[def.endIndex];
+            const edgeVector = end.clone().sub(start);
+            const length = edgeVector.length();
+            const widthAxis = edgeVector.clone().normalize();
+            let normal = new THREE.Vector3().crossVectors(widthAxis, heightAxis).normalize();
+            const faceCenter = start.clone().add(end).multiplyScalar(0.5);
+            const directionFromCenter = faceCenter.clone().sub(new THREE.Vector3(0, 0, 0));
+            if (directionFromCenter.dot(normal) < 0) {
+                normal = normal.multiplyScalar(-1);
+            }
+            const basisMatrix = new THREE.Matrix4().makeBasis(widthAxis, heightAxis, normal);
+            const quaternion = new THREE.Quaternion().setFromRotationMatrix(basisMatrix);
+            return {
+                key: def.key,
+                start,
+                end,
+                length,
+                center: faceCenter,
+                widthAxis,
+                normal,
+                quaternion
+            };
+        });
+
+        const gridAvailable = baseLength - margin * 2;
+        const buttonSize = (gridAvailable - buttonGap * (GRID_SIZE - 1)) / GRID_SIZE;
+
+        const createButton = (faceKey, faceGroup, prismIndex, prismName, faceLength, rowIndex, colIndex) => {
+            const material = new THREE.MeshStandardMaterial({
+                color: faceColors[faceKey],
+                metalness: 0.25,
+                roughness: 0.45
+            });
+
+            const localX = -faceLength / 2 + margin + buttonSize / 2 + colIndex * (buttonSize + buttonGap);
+            const localY = prismHeight / 2 - margin - buttonSize / 2 - rowIndex * (buttonSize + buttonGap);
+
+            const roundedShape = createRoundedSquareShape(buttonSize, buttonSize * 0.18);
+            const extrudeSettings = {
+                depth: buttonDepth,
+                bevelEnabled: true,
+                bevelSegments: 2,
+                bevelSize: Math.min(buttonSize * 0.08, 0.08),
+                bevelThickness: buttonDepth * 0.55,
+                steps: 1
+            };
+            const geometry = new THREE.ExtrudeGeometry(roundedShape, extrudeSettings);
+            geometry.center();
+
+            const button = new THREE.Mesh(geometry, material);
+            button.position.set(localX, localY, buttonDepth / 2 + 0.08);
+            button.castShadow = true;
+            button.receiveShadow = true;
+
+>>>>>>> theirs
             const content = generateButtonContent(prismName, faceKey, rowIndex, colIndex);
             button.userData = {
                 type: 'button',
@@ -213,6 +335,7 @@ const ThreeScene = () => {
                 ...content
             };
 
+<<<<<<< ours
             prismMesh.add(button);
             clickableObjects.current.push(button);
         };
@@ -368,6 +491,83 @@ const ThreeScene = () => {
         axis.receiveShadow = true;
         prismGroup.current.add(axis);
 
+=======
+            faceGroup.add(button);
+            clickableObjects.current.push(button);
+        };
+
+        const createPrism = (index, faces) => {
+            const prism = new THREE.Group();
+            const centeredIndex = (PRISM_NAMES.length - 1) / 2 - index;
+            prism.position.y = centeredIndex * (prismHeight + prismSpacing);
+            prism.userData = { type: 'prism-base', index };
+            prismGroup.current.add(prism);
+
+            faces.forEach((faceInfo) => {
+                const faceGroup = new THREE.Group();
+                faceGroup.position.copy(faceInfo.center);
+                faceGroup.quaternion.copy(faceInfo.quaternion);
+
+                const faceMaterial = new THREE.MeshStandardMaterial({
+                    color: faceColors[faceInfo.key],
+                    metalness: 0.2,
+                    roughness: 0.6,
+                    opacity: 0.4,
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+
+                const facePlane = new THREE.Mesh(new THREE.PlaneGeometry(faceInfo.length, prismHeight), faceMaterial);
+                facePlane.position.set(0, 0, -0.05);
+                facePlane.receiveShadow = true;
+                faceGroup.add(facePlane);
+
+                FACE_KEYS.forEach((key) => {
+                    if (key === faceInfo.key) {
+                        for (let rowIndex = 0; rowIndex < GRID_SIZE; rowIndex++) {
+                            for (let colIndex = 0; colIndex < GRID_SIZE; colIndex++) {
+                                createButton(key, faceGroup, index, PRISM_NAMES[index], faceInfo.length, rowIndex, colIndex);
+                            }
+                        }
+
+                        ROW_LABELS.forEach((label, rowIndex) => {
+                            const sprite = createTextSprite(label, { fontSize: 18, padding: 3 });
+                            const localY = prismHeight / 2 - margin - buttonSize / 2 - rowIndex * (buttonSize + buttonGap);
+                            const localX = -faceInfo.length / 2 + margin / 2;
+                            sprite.position.set(localX, localY, 0.02);
+                            faceGroup.add(sprite);
+                            gridLabelsRef.current.push(sprite);
+                        });
+
+                        COLUMN_LABELS.forEach((label, columnIndex) => {
+                            const sprite = createTextSprite(label, { fontSize: 18, padding: 3 });
+                            const localX = -faceInfo.length / 2 + margin + columnIndex * (buttonSize + buttonGap) + buttonSize / 2;
+                            const localY = prismHeight / 2 - margin / 2;
+                            sprite.position.set(localX, localY, 0.02);
+                            faceGroup.add(sprite);
+                            gridLabelsRef.current.push(sprite);
+                        });
+                    }
+                });
+
+                prism.add(faceGroup);
+            });
+        };
+
+        PRISM_NAMES.forEach((_, index) => {
+            createPrism(index, faceData);
+        });
+
+        const axisHeight = PRISM_NAMES.length * prismHeight + prismSpacing * (PRISM_NAMES.length - 1) + 1.2;
+        const axisGeometry = new THREE.CylinderGeometry(0.16, 0.16, axisHeight, 24);
+        const axisMaterial = new THREE.MeshStandardMaterial({ color: 0x2f3542, metalness: 0.6, roughness: 0.2 });
+        const axis = new THREE.Mesh(axisGeometry, axisMaterial);
+        axis.position.set(0, 0, 0);
+        axis.castShadow = true;
+        axis.receiveShadow = true;
+        prismGroup.current.add(axis);
+
+>>>>>>> theirs
         raycaster.current = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -407,6 +607,7 @@ const ThreeScene = () => {
         const animate = () => {
             animationId.current = requestAnimationFrame(animate);
             controls.current.update();
+<<<<<<< ours
             controls.current.minPolarAngle = 0.2;
             controls.current.maxPolarAngle = Math.PI - 0.2;
             controls.current.enableRotate = true;
@@ -415,6 +616,8 @@ const ThreeScene = () => {
             prismGroup.current.rotation.y += 0.003;
 
             updateLabelPositions(camera.current, prismGroup);
+=======
+>>>>>>> theirs
             renderer.current.render(scene.current, camera.current);
         };
 
@@ -430,17 +633,26 @@ const ThreeScene = () => {
             if (animationId.current) {
                 cancelAnimationFrame(animationId.current);
             }
+<<<<<<< ours
 
             if (renderer.current && renderer.current.domElement.parentNode === mountRef.current) {
                 mountRef.current.removeChild(renderer.current.domElement);
             }
 
+=======
+
+            if (renderer.current && renderer.current.domElement.parentNode === mountRef.current) {
+                mountRef.current.removeChild(renderer.current.domElement);
+            }
+
+>>>>>>> theirs
             gridLabelsRef.current.forEach(sprite => {
                 if (sprite && sprite.material && sprite.material.map) {
                     sprite.material.map.dispose();
                     sprite.material.dispose();
                 }
             });
+<<<<<<< ours
             gridLabelsRef.current = [];
 
             clickableObjects.current = [];
@@ -459,6 +671,16 @@ const ThreeScene = () => {
                 controls.current.dispose();
             }
 
+=======
+            gridLabelsRef.current.length = 0;
+
+            clickableObjects.current = [];
+
+            if (controls.current) {
+                controls.current.dispose();
+            }
+
+>>>>>>> theirs
             if (renderer.current) {
                 renderer.current.dispose();
             }

@@ -72,6 +72,7 @@
 
 .prism-legend {
   flex: 0 0 260px;
+<<<<<<< ours
 }
 .prism-label {
   position: absolute;
@@ -89,6 +90,8 @@
   position: absolute;
   right: 20vw;
   top: 15vh;
+=======
+>>>>>>> theirs
   display: flex;
   flex-direction: column;
   justify-content: center;
