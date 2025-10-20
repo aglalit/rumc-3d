@@ -1,38 +1,326 @@
-.App {
+/* App.css */
+.app {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  color: white;
+  overflow-x: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+.header {
+  padding: 2rem 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.2rem;
+}
+
+.content {
+  position: relative;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.instructions {
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}
+
+.instructions p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 60vh;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.prism-label {
+  position: absolute;
+  top: 15vh;
+  left: 50vw;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 10;
+  /*transform: translate(-50%, -50%);*/
+}
+
+.prism-label:nth-child(2) {
+  top: 24vh;
+}
+
+.prism-label:nth-child(3) {
+  top: 33vh;
+}
+
+.prism-label:nth-child(4) {
+  top: 42vh;
+}
+
+.label-wrapper {
+  position: absolute;
+  right: 20vw;
+  top: 15vh;
   display: flex;
   flex-direction: column;
+  gap: 6vh;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: white;
+  color: #333;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #777;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.modal-content p {
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.grid-container {
+  margin: 1.5rem 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.grid-header {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.grid-header-cell {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  border-right: 1px solid #ddd;
+}
+
+.grid-header-cell:first-child {
+  flex: 0.5;
+  background-color: #e9ecef;
+}
+
+.grid-header-cell:last-child {
+  border-right: none;
+}
+
+.grid-body {
+  display: flex;
+}
+
+.grid-sidebar {
+  flex: 0.5;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+}
+
+.grid-sidebar-cell {
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  height: 80px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.grid-sidebar-cell:last-child {
+  border-bottom: none;
+}
+
+.grid-main {
+  flex: 3;
+}
+
+.grid-row {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.grid-row:last-child {
+  border-bottom: none;
+}
+
+.grid-cell {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border-right: 1px solid #ddd;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-cell:last-child {
+  border-right: none;
+}
+
+.modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  padding: 0.7rem 1.5rem;
+  background-color: #3498db;
   color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  min-width: 120px;
 }
 
-.App-link {
-  color: #61dafb;
+.action-button:hover {
+  background-color: #2980b9;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.action-button:last-child {
+  background-color: #27ae60;
+}
+
+.action-button:last-child:hover {
+  background-color: #219a52;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.8rem;
   }
-  to {
-    transform: rotate(360deg);
+
+  .header p {
+    font-size: 1rem;
+  }
+
+  .canvas-container {
+    height: 50vh;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .grid-header-cell,
+  .grid-sidebar-cell,
+  .grid-cell {
+    padding: 5px;
+    font-size: 0.8rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .instructions p {
+    font-size: 1rem;
+  }
+
+  .grid-container {
+    overflow-x: auto;
+  }
+
+  .grid-header,
+  .grid-body {
+    flex-direction: column;
+  }
+
+  .grid-header-cell,
+  .grid-sidebar-cell,
+  .grid-cell {
+    height: auto;
+    min-height: 60px;
   }
 }
